@@ -1,0 +1,52 @@
+# ====================================================================
+# Zephyr RTOS & West Build Artifacts (nRF54 Target)
+# ====================================================================
+build/
+_sysbuild/
+zephyr/
+.west/
+.metadata/
+*.elf
+*.hex
+*.bin
+*.map
+*.lst
+
+# ====================================================================
+# Python Virtual Environments & Caches (Raspberry Pi CM5 Scripts)
+# ====================================================================
+.venv/
+venv/
+ENV/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.history/
+
+# ====================================================================
+# Local Runtime Log Files & Caching Mechanisms
+# ====================================================================
+latest_epoch.txt
+sync_log.txt
+live_stream_capture.log
+nohup.out
+*.log
+
+# ====================================================================
+# IDE / Editor Specific Configurations (VS Code & Windows)
+# ====================================================================
+.vscode/
+.idea/
+*.swp
+*.bak
+Thumbs.db
+desktop.ini
+
+# ====================================================================
+# Sensitive Hardware Configurations & Personal Security
+# ====================================================================
+# Un-comment the line below if you want to keep your specific 
+# 10-year WEST lookup tables or keys private from a public repo:
+# src/secret.h

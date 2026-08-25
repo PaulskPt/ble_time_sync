@@ -1,0 +1,14 @@
+[Unit]
+Description=BLE High-Speed File Change Watcher Service
+After=network.target mqtt_recorder.service
+
+[Service]
+Type=simple
+User=paulsk
+WorkingDirectory=/home/paulsk/pi_ble_oled
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/paulsk/pi_ble_oled/.venv/bin/python /home/paulsk/pi_ble_oled/send_time_sync.py
+Restart=always
+RestartSec=5
+[Install]
+WantedBy=multi-user.target

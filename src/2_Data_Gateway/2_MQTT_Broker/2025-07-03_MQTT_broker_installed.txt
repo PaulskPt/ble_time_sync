@@ -1,0 +1,19 @@
+2025-07-04 QMTT broker, mosquitto app installed on the Raspberry Pi CM5
+to have this CM5 with the mosquitto app running, serving as a QMTT broker
+for several microcontoller devices here in the house, like:
+1) an Arduino Uno R4 (Renesas RA4M1 (Arm® Cortex®-M4) + ESP32-S3 for Wi-Fi®/Bluetooth® connectivity) WiFi in the role of MQTT Publisher
+2) a Pimoroni Presto (RP2350) in the role of MQTT Subscriber
+3) (future:) a Unexpected Maker SQUiXL (ESP32S3)
+
+I installed the mosquitto app to this RPiCM5 to have not the need to use the big desktop PC Paul5 (and run all night, with the noise of its ventilators and the heat this desktop PC emits), The box in which the RPiCM5 is mounted stays fairly cool.
+
+IP address of the RPiCM5 is: 192.168._.___
+
+
+Addition info 2026-08-25
+
+As MQTT Publisher I now use an Adafruit Feather ESP32-S3-TFT, connected to:
+- M5Stack RTC Unit (RTC8563);
+- Pimoroni multi-sensor-stick (PIM745);
+- Pimoroni Qwiic I2C Gamepad Controller (PIM752);
+- M5Stack 3 x Grove connctor Hub.

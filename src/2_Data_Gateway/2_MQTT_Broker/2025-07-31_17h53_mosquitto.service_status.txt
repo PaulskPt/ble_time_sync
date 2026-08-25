@@ -1,0 +1,37 @@
+
+paulsk@RPiCM5:~ $ sudo systemctl status mosquitto.service
+● mosquitto.service - Mosquitto MQTT Broker
+     Loaded: loaded (/lib/systemd/system/mosquitto.service; enabled; preset: en>
+     Active: active (running) since Thu 2025-07-31 17:53:52 WEST; 4min 10s ago
+       Docs: man:mosquitto.conf(5)
+             man:mosquitto(8)
+    Process: 752 ExecStartPre=/bin/mkdir -m 740 -p /var/log/mosquitto (code=exi>
+    Process: 762 ExecStartPre=/bin/chown mosquitto /var/log/mosquitto (code=exi>
+    Process: 767 ExecStartPre=/bin/mkdir -m 740 -p /run/mosquitto (code=exited,>
+    Process: 778 ExecStartPre=/bin/chown mosquitto /run/mosquitto (code=exited,>
+   Main PID: 781 (mosquitto)
+      Tasks: 1 (limit: 4761)
+        CPU: 26ms
+     CGroup: /system.slice/mosquitto.service
+             └─781 /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf
+
+jul 31 17:53:51 RPiCM5 systemd[1]: Starting mosquitto.service - Mosquitto MQTT >
+jul 31 17:53:52 RPiCM5 systemd[1]: Started mosquitto.service - Mosquitto MQTT B>
+lines 1-17/17 (END)...skipping...
+● mosquitto.service - Mosquitto MQTT Broker
+     Loaded: loaded (/lib/systemd/system/mosquitto.service; enabled; preset: enabled)
+     Active: active (running) since Thu 2025-07-31 17:53:52 WEST; 4min 10s ago
+       Docs: man:mosquitto.conf(5)
+             man:mosquitto(8)
+    Process: 752 ExecStartPre=/bin/mkdir -m 740 -p /var/log/mosquitto (code=exited, status=0/SUCCESS)
+    Process: 762 ExecStartPre=/bin/chown mosquitto /var/log/mosquitto (code=exited, status=0/SUCCESS)
+    Process: 767 ExecStartPre=/bin/mkdir -m 740 -p /run/mosquitto (code=exited, status=0/SUCCESS)
+    Process: 778 ExecStartPre=/bin/chown mosquitto /run/mosquitto (code=exited, status=0/SUCCESS)
+   Main PID: 781 (mosquitto)
+      Tasks: 1 (limit: 4761)
+        CPU: 26ms
+     CGroup: /system.slice/mosquitto.service
+             └─781 /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf
+
+jul 31 17:53:51 RPiCM5 systemd[1]: Starting mosquitto.service - Mosquitto MQTT Broker...
+jul 31 17:53:52 RPiCM5 systemd[1]: Started mosquitto.service - Mosquitto MQTT Broker.

@@ -1,0 +1,14 @@
+Howto install Mosquitto MQTT Broker on Raspberry Pi OS ?
+
+https://randomnerdtutorials.com/how-to-install-mosquitto-broker-on-raspberry-pi/
+
+https://microcontrollerslab.com/install-mosquitto-mqtt-broker-on-raspberry-pi/
+
+https://raspberrytips.com/mqtt-broker-raspberry-pi/
+
+https://www.tech-sparks.com/install-mosquitto-on-raspberry-pi/
+
+https://mqttfy.com/resources/raspberry-pi-as-mqtt-broker
+
+https://thinkrobotics.com/blogs/learn/complete-guide-to-mqtt-broker-setup-on-raspberry-pi-in-2025
+

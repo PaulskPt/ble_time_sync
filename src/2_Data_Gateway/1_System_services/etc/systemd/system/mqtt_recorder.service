@@ -1,0 +1,14 @@
+[Unit]
+Description=MQTT JSON Payload File Recorder Service
+After=network.target mosquitto.service
+
+[Service]
+Type=simple
+User=paulsk
+WorkingDirectory=/home/paulsk/pi_ble_oled
+ExecStart=/home/paulsk/pi_ble_oled/.venv/bin/python /home/paulsk/pi_ble_oled/mqtt_to_ble_gateway.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

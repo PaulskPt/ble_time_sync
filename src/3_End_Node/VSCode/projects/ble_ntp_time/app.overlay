@@ -1,0 +1,63 @@
+/*
+ * Copyright (c) 2026 Paulus Schulinck (Github @PaulskPt)
+ *
+ * SPDX-License-Identifier: MIT
+ * Note @PaulskPt: info from Google AI assistant:
+ * Zephyr builtin driver: zephyr/drivers/display/ssd1306.c
+ */
+
+/ {
+    aliases {
+        my-i2c = &i2c21;
+    };
+
+    chosen {
+        zephyr,display = &oled_screen;
+    };
+};
+
+&pinctrl {
+    i2c21_default: i2c21_default {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 1, 11)>,  /* Port 1 Pin 11 */
+                    <NRF_PSEL(TWIM_SCL, 1, 12)>;  /* Port 1 Pin 12 */
+            bias-pull-up;
+        };
+    };
+
+    i2c21_sleep: i2c21_sleep {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 1, 11)>,
+                    <NRF_PSEL(TWIM_SCL, 1, 12)>;
+            low-power-enable;
+        };
+    };
+};
+
+&i2c21 {
+    status = "okay";
+    pinctrl-0 = <&i2c21_default>;
+    pinctrl-1 = <&i2c21_sleep>;
+    pinctrl-names = "default", "sleep";
+    clock-frequency = <I2C_BITRATE_FAST>;
+
+    zephyr,concat-buf-size = <256>;
+
+    oled_screen: oled@3d {
+        /* Native 128x128 vertical structural mapping driver profile */
+        compatible = "sinowealth,sh1106";
+        reg = <0x3d>;
+        width = <128>;
+        height = <128>;
+
+        segment-offset = <0>;
+        page-offset = <0>;
+        display-offset = <0>;
+        multiplex-ratio = <127>;
+        prechargep = <0x22>;
+
+        /* Keeps the letters reading correctly from left to right */
+        segment-remap;
+        com-invdir;
+    };
+};
