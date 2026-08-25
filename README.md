@@ -97,7 +97,7 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com
+   git clone https://github.com/PaulskPt/ble_time_sync/tree/main
    cd ble_time_sync
    ```
 
