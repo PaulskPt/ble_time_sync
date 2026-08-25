@@ -40,7 +40,7 @@ An advanced, event-driven, cross-protocol time synchronization and environment t
 | Hardware Platform | Specs & Architecture | Role & Implementation |
 | :--- | :--- | :--- |
 | **Adafruit Feather ESP32-S3 TFT** *(ID: 5483)* | Tensilica Xtensa LX7 dual-core | **MQTT Publisher (Wi-Fi Core):** Connects to network routers to fetch internet NTP Epoch time and broadcasts structured payloads once a minute. |
-| **Pimoroni Multi Sensor Stick** *(ID: PIM745)* | Sensirion SGP41 / SHT41 | **Environmental Sensor Hub:** Monitors ambient temperature, pressure, relative humidity, and VOC properties. |
+| **Pimoroni Multi Sensor Stick** *(ID: PIM745)* | BOSCH BME280 temp, pressure and humidity | **Environmental Sensor Hub:** Monitors ambient temperature, pressure, relative humidity, and VOC properties. |
 | **M5Stack Unit RTC** *(ID: U126)* | NXP PCF8563 high-stability RTC | **Local Hardware Clock Tracker:** Maintained by the ESP32-S3 as a highly stable, non-volatile time anchor. |
 | **Raspberry Pi Compute Module 5** *(Pi CM5)* | Broadcom BCM2712 Quad-Core @ 2.4GHz | **Smart System Gateway:** Runs a headless Linux OS instance executing persistent `systemd` cross-protocol pipelines and a local Mosquitto broker. |
 | **Nordic nRF54LM20-DK** *(nRF54LM20B)* | ARM Cortex-M33 App Processor | **End-Node Receiver:** Runs the Zephyr RTOS `ble_time_sync` firmware image, parses 10-year timezone matrices, and updates internal clocks. |
@@ -52,13 +52,17 @@ An advanced, event-driven, cross-protocol time synchronization and environment t
 
 ### 1. Edge Publisher (`ESP32-S3 Arduino Sketch`)
 Gathers NTP timestamp tokens and wraps them along with environment data inside a structured JSON layout using `composePayload()`.
-* **Payload Format Example:** `{"hd": {"ow": "Feath", "de": "Lab", "dc": "BME280", "sc": "meas", "vt": "f", "t": 1787601381}}` where `t` represents the live Epoch timeline.
+* **Header Format Example:** `{"hd": {"ow": "Feath", "de": "Lab", "dc": "BME280", "sc": "meas", "vt": "f", "t": 1787601381}}` where `t` represents the live Epoch timeline.
 
 ### 2. Linux Background Infrastructure (`Raspberry Pi CM5`)
 Managed by two independent, unbuffered, auto-starting **`systemd`** services to decouple Wi-Fi transactions from the Bluetooth hardware controller:
+### 2. Linux Background Infrastructure (`Raspberry Pi CM5`)
+The Raspberry Pi CM5 serves as the central data gateway, natively hosting a **Mosquitto MQTT Broker** instance to capture incoming Wi-Fi message packets. The orchestration pipeline is managed continuously by two independent, unbuffered, auto-starting **`systemd`** background services to cleanly decouple network data transactions from the local Bluetooth radio hardware controller:
 
+* **Mosquitto MQTT Broker**: 
+  Runs as a core system daemon, handling incoming TCP/IP data frames from the ESP32-S3 publisher once a minute and routing them locally with near-zero overhead.
 * **`mqtt_recorder.service`** (Runs `mqtt_to_ble_gateway.py`):
-  Subscribes to `sensors/Feath/ambient`, decodes the payload dictionary, extracts the nested epoch string, and atomically overwrites a flat text file cache (`latest_epoch.txt`).
+  Subscribes directly to the local broker topic `sensors/Feath/ambient`, decodes the payload dictionary, extracts the nested epoch string, and atomically overwrites a flat text file cache (`latest_epoch.txt`).
 * **`ble_watcher.service`** (Runs `send_time_sync.py`):
   Uses a high-speed file watcher loop (scanning every 1 second). On modification, it extracts the timestamp, validates a built-in **110-second safety gating filter** to prevent BlueZ hardware overlapping collisions (`InProgress` errors), opens a BLE GATT channel to the target node, transmits an 8-byte little-endian binary array (`uint64_t`), and terminates cleanly.
 
