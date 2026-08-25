@@ -40,7 +40,7 @@ An advanced, event-driven, cross-protocol time synchronization and environment t
 | Hardware Platform | Specs & Architecture | Role & Implementation |
 | :--- | :--- | :--- |
 | **Adafruit Feather ESP32-S3 TFT** *(ID: 5483)* | Tensilica Xtensa LX7 dual-core | **MQTT Publisher (Wi-Fi Core):** Connects to network routers to fetch internet NTP Epoch time and broadcasts structured payloads once a minute. |
-| **Pimoroni Multi Sensor Stick** *(ID: PIM745)* | Sensirion SGP41 / SHT41 | **Environmental Sensor Hub:** Monitors ambient temperature, pressure, relative humidity, and VOC properties. |
+| **Pimoroni Multi Sensor Stick** *(ID: PIM745)* | BOSCH BME280 temp, pressure and humidity | **Environmental Sensor Hub:** Monitors ambient temperature, pressure, relative humidity, and VOC properties. |
 | **M5Stack Unit RTC** *(ID: U126)* | NXP PCF8563 high-stability RTC | **Local Hardware Clock Tracker:** Maintained by the ESP32-S3 as a highly stable, non-volatile time anchor. |
 | **Raspberry Pi Compute Module 5** *(Pi CM5)* | Broadcom BCM2712 Quad-Core @ 2.4GHz | **Smart System Gateway:** Runs a headless Linux OS instance executing persistent `systemd` cross-protocol pipelines and a local Mosquitto broker. |
 | **Nordic nRF54LM20-DK** *(nRF54LM20B)* | ARM Cortex-M33 App Processor | **End-Node Receiver:** Runs the Zephyr RTOS `ble_time_sync` firmware image, parses 10-year timezone matrices, and updates internal clocks. |
