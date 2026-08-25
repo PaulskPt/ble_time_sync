@@ -1,6 +1,13 @@
 # ble_time_sync
 
+# ble_time_sync
+
 An advanced, event-driven, cross-protocol time synchronization and environment tracking ecosystem. This project bridges a Wi-Fi-based MQTT topology with an ultra-low-energy Bluetooth (BLE) network, delivering an automated, self-healing desktop dashboard with sub-2-second data latency.
+
+> 💡 **Design Context Note:** 
+> At first glance, deploying this specific combination of hardware and software layers solely to update the internal real-time clock of an nRF54LM20-DK board might seem extensive. However, this project was architected to seamlessly plug into an **already existing, robust MQTT production environment** consisting of a powered edge publisher and a local broker. 
+> 
+> Because the active Wi-Fi MQTT Publisher broadcasts a structured data packet every 60 seconds containing an up-to-date NTP epoch timestamp inside its payload header, this project creatively intercepts that existing data stream. The Raspberry Pi CM5 extracts the timestamp on the fly and immediately routes it over the air via a low-energy BLE GATT characteristic write to the nRF54 target, maximizing existing home automation infrastructures with elegant precision.
 
 ---
 
