@@ -90,12 +90,22 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
 
 ## 🛠️ Installation & Setup
 
+## 🛠️ Installation & Setup
+
 1. **Clone the repository:**
    ```bash
    git clone https://github.com
    cd ble_time_sync
    ```
-2. **Deploy the Raspberry Pi CM5 Gateway Services:**
+
+2. **Build Arduino Sketch and Flash the Edge Publisher:**
+   * Open the provided `.ino` sketch folder inside the Arduino IDE or VS Code with the ESP32 platform extension active.
+   * Ensure your physical hardware suite is wired securely to the I2C lines (Adafruit Feather ESP32-S3 TFT, Pimoroni Multi Sensor Stick, and M5Stack Unit RTC).
+   * Install any required baseline packaging libraries (`ArduinoJson`, `WiFi`, `PubSubClient`, etc.).
+   * Configure your local Wi-Fi SSID, router passphrase credentials, and your Raspberry Pi CM5's static IP address for the target MQTT broker.
+   * Compile the sketch image and flash it directly to your **Adafruit Feather ESP32-S3 TFT** board over a USB-C interface link.
+
+3. **Deploy the Raspberry Pi CM5 Gateway Services:**
    * Move the scripts into `~/pi_ble_oled/` and set up your `.venv` virtual environment with `pip install bleak paho-mqtt`.
    * Copy the service configuration files into `/etc/systemd/system/`.
    * Initialize them:
@@ -104,7 +114,8 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
      sudo systemctl enable mqtt_recorder.service ble_watcher.service
      sudo systemctl start mqtt_recorder.service ble_watcher.service
      ```
-3. **Compile and Flash the nRF54 DK Node:**
+
+4. **Compile and Flash the nRF54 DK Node:**
    * Open the project directory folder inside VS Code with the nRF Connect SDK extension active.
    * Verify your local configurations inside `src/secret.h`.
    * Execute build pass via toolchain environment terminal windows:
@@ -112,6 +123,7 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
      west build -b nrf54lm20dk/nrf54lm20b/cpuapp --sysbuild
      west flash
      ```
+
 
 ---
 
