@@ -112,7 +112,7 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
 
 3. **Deploy the Raspberry Pi CM5 Gateway Services:**
    * Move the scripts into `~/pi_ble_oled/` and set up your `.venv` virtual environment with `pip install bleak paho-mqtt`.
-   * Copy the service configuration files from: `ble_time_sync/src/2_Data_Gateway/1_System_services/etc/systemd/system/` into `/etc/systemd/system/`.
+   * Copy the [service configuration files](https://github.com/PaulskPt/ble_time_sync/tree/main/src/2_Data_Gateway/1_System_services/etc/systemd/system) into `/etc/systemd/system/`.
    * Initialize them:
      ```bash
      sudo systemctl daemon-reload
