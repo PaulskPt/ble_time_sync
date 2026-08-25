@@ -1,7 +1,5 @@
 # ble_time_sync
 
-# ble_time_sync
-
 An advanced, event-driven, cross-protocol time synchronization and environment tracking ecosystem. This project bridges a Wi-Fi-based MQTT topology with an ultra-low-energy Bluetooth (BLE) network, delivering an automated, self-healing desktop dashboard with sub-2-second data latency.
 
 > 💡 **Design Context Note:** 
