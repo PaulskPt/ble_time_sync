@@ -56,6 +56,15 @@ Gathers NTP timestamp tokens and wraps them along with environment data inside a
 
 ### 2. Linux Background Infrastructure (`Raspberry Pi CM5`)
 Managed by two independent, unbuffered, auto-starting **`systemd`** services to decouple Wi-Fi transactions from the Bluetooth hardware controller:
+### 2. Linux Background Infrastructure (`Raspberry Pi CM5`)
+The Raspberry Pi CM5 serves as the central data gateway, natively hosting a **Mosquitto MQTT Broker** instance to capture incoming Wi-Fi message packets. The orchestration pipeline is managed continuously by two independent, unbuffered, auto-starting **`systemd`** background services to cleanly decouple network data transactions from the local Bluetooth radio hardware controller:
+
+* **Mosquitto MQTT Broker**: 
+  Runs as a core system daemon, handling incoming TCP/IP data frames from the ESP32-S3 publisher once a minute and routing them locally with near-zero overhead.
+* **`mqtt_recorder.service`** (Runs `mqtt_to_ble_gateway.py`):
+  Subscribes directly to the local broker topic `sensors/Feath/ambient`, decodes the payload dictionary, extracts the nested epoch string, and atomically overwrites a flat text file cache (`latest_epoch.txt`).
+* **`ble_watcher.service`** (Runs `send_time_sync.py`):
+  Uses a high-speed file watcher loop (scanning every 1 second). On modification, it extracts the timestamp, validates a built-in **110-second safety gating filter** to prevent BlueZ hardware overlapping collisions (`InProgress` errors), opens a BLE GATT channel to the target node, transmits an 8-byte little-endian binary array (`uint64_t`), and terminates cleanly.
 
 * **`mqtt_recorder.service`** (Runs `mqtt_to_ble_gateway.py`):
   Subscribes to `sensors/Feath/ambient`, decodes the payload dictionary, extracts the nested epoch string, and atomically overwrites a flat text file cache (`latest_epoch.txt`).
