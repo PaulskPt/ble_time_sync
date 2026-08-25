@@ -112,15 +112,39 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
      sudo systemctl enable mqtt_recorder.service ble_watcher.service
      sudo systemctl start mqtt_recorder.service ble_watcher.service
      ```
-
 4. **Compile and Flash the nRF54 DK Node:**
-   * Open the project directory folder inside VS Code with the nRF Connect SDK extension active.
-   * Verify your local configurations inside `src/secret.h`.
-   * Execute build pass via toolchain environment terminal windows:
+   * **Prerequisites (Windows 11 Host):** Ensure the following external Nordic desktop utilities are installed to manage your toolchains and handle physical debugging interface links:
+     * **nRF Command-Line Tools** (Provides `nrfjprog` and the baseline SEGGER J-Link USB hardware drivers).
+     * **nRF Connect for Desktop**:
+       * Install the **Toolchain Manager** application from the central desktop launcher dashboard.
+       * Use the Toolchain Manager to install **nRF Connect SDK v3.4.0**. This automated installer creates the core directory structure at `C:\ncs\v3.4.0\` and populates the essential downstream repository subfolders (including `zephyr` and `nrf`).
+   * **VS Code Extensions:** Verify that the `nRF Connect for VS Code Extension Pack` and `nRF Connect Extension Pack` components are fully installed and active.
+   * **Prepare the Toolchain Environment:** Open a terminal window inside VS Code to configure your local compilation dependencies:
+     * **a) Install required tool dependencies via pip:**
+       ```powershell
+       python -m pip install -r C:\ncs\v3.4.0\zephyr\scripts\requirements.txt
+       ```
+     * **b) Establish and enter the local Python virtual environment:**
+       ```powershell
+       Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+       .\.venv\Scripts\Activate.ps1
+       ```
+     * **c) Append critical Nordic utilities to your path and bind the Zephyr workspace base location:**
+       ```powershell
+       \$env:PATH = "C:\ncs\toolchains\dcbdc366a1\nrfutil\bin;" + \(env:PATH\)env:ZEPHYR_BASE = "C:\ncs\v3.4.0\zephyr"
+       ```
+   * **Verify Configuration Arrays:** Open and verify your local runtime parameters and 10-year automated timezone lookup matrices inside `src/secret.h`.
+   * **Open the Workspace Repository:** Load your active project folder root directory (e.g., `C:\Users\<User>\...\projects\ble_ntp_time`) directly inside VS Code.
+   * **Handling Ninja Compiler Background Locks:** If you encounter a background process lock validation fault during a compilation loop pass, execute this line to force-clear stale hanging system hooks instantly:
+     ```powershell
+     Stop-Process -Name "ninja", "cmake" -Force -ErrorAction SilentlyContinue
+     ```
+   * **Execute Compilation & Device Deployment:** Build the image matrix and flash the target binary image directly onto your hardware node core registers:
      ```powershell
      west build -b nrf54lm20dk/nrf54lm20b/cpuapp --sysbuild
      west flash
      ```
+
 
 
 ---
