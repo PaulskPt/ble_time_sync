@@ -139,7 +139,7 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
        \$env:PATH = "C:\ncs\toolchains\dcbdc366a1\nrfutil\bin;" + \(env:PATH\)env:ZEPHYR_BASE = "C:\ncs\v3.4.0\zephyr"
        ```
    * **Verify Configuration Arrays:** Open and verify your local runtime parameters and 10-year automated timezone lookup matrices inside [secret.h](https://github.com/PaulskPt/ble_time_sync/tree/main/src/3_End_Node/VSCode/projects/ble_ntp_time/src).
-   * **Open the Workspace Repository:** Load your active project folder root directory (e.g., `C:\Users\<User>\...\projects\ble_ntp_time`) directly inside VS Code.
+   * **Open the Workspace Repository:** Load your active project folder root directory (e.g., `C:\Users\<User>\...\VSCode\projects\ble_ntp_time`) directly inside VS Code.
    * **Handling Ninja Compiler Background Locks:** If you encounter a background process lock validation fault during a compilation loop pass, execute this line to force-clear stale hanging system hooks instantly:
      ```powershell
      Stop-Process -Name "ninja", "cmake" -Force -ErrorAction SilentlyContinue
