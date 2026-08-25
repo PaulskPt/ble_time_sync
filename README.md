@@ -50,7 +50,7 @@ An advanced, event-driven, cross-protocol time synchronization and environment t
 
 ## 💾 Software Components & Implementation
 
-### 1. Edge Publisher (`ESP32-S3 Arduino Sketch`)
+### 1. MQTT Publisher (`ESP32-S3 Arduino Sketch`)
 Gathers NTP timestamp tokens and wraps them along with environment data inside a structured JSON layout using `composePayload()`.
 * **Header Format Example:** `{"hd": {"ow": "Feath", "de": "Lab", "dc": "BME280", "sc": "meas", "vt": "f", "t": 1787601381}}` where `t` represents the live Epoch timeline.
 
