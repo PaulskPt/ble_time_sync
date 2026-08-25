@@ -90,8 +90,6 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
 
 ## 🛠️ Installation & Setup
 
-## 🛠️ Installation & Setup
-
 1. **Clone the repository:**
    ```bash
    git clone https://github.com
