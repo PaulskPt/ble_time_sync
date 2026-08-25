@@ -1,6 +1,6 @@
 # ble_time_sync
 
-An advanced, event-driven, cross-protocol time synchronization and environment tracking ecosystem. This project bridges a Wi-Fi-based MQTT topology with an ultra-low-energy Bluetooth (BLE) network, delivering an automated, self-healing desktop dashboard with sub-2-second data latency.
+An advanced, event-driven, cross-protocol time synchronization and environment tracking system. This project bridges a Wi-Fi-based MQTT topology with an ultra-low-energy Bluetooth (BLE) network, delivering an automated, self-healing desktop dashboard with sub-2-second data latency.
 
 > 💡 **Design Context Note:** 
 > At first glance, deploying this specific combination of hardware and software layers solely to update the internal real-time clock of an nRF54LM20-DK board might seem extensive. However, this project was architected to seamlessly plug into an **already existing, robust MQTT production environment** consisting of a powered edge publisher and a local broker. 
