@@ -111,7 +111,7 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
    * Compile the sketch image and flash it directly to your **Adafruit Feather ESP32-S3 TFT** board over a USB-C interface link.
 
 3. **Deploy the Raspberry Pi CM5 Gateway Services:**
-   * Move the scripts into `~/pi_ble_oled/` and set up your `.venv` virtual environment with `pip install bleak paho-mqtt`.
+   * Move the [scripts](https://github.com/PaulskPt/ble_time_sync/tree/main/src/2_Data_Gateway/3_ble_watcher/pi_ble_oled) into `~/pi_ble_oled/` and set up your `.venv` virtual environment with `pip install bleak paho-mqtt`.
    * Copy the [service configuration files](https://github.com/PaulskPt/ble_time_sync/tree/main/src/2_Data_Gateway/1_System_services/etc/systemd/system) into `/etc/systemd/system/`.
    * Initialize them:
      ```bash
