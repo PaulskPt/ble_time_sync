@@ -102,7 +102,7 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
    ```
 
 2. **Build Arduino Sketch and Flash the MQTT Publisher:**
-   * Open the provided `.ino` sketch folder inside the Arduino IDE or VS Code with the ESP32 platform extension active.
+   * Open the provided `.ino` [sketch folder](https://github.com/PaulskPt/ble_time_sync/tree/main/src/1_MQTT_Publisher/Feather_ESP32_S3_TFT_MQTT_w_Pimoroni_2xqwstpad_v5) inside the Arduino IDE or VS Code with the ESP32 platform extension active.
    * Ensure your physical hardware suite is wired securely to the I2C lines (Adafruit Feather ESP32-S3 TFT, Pimoroni Multi Sensor Stick, and M5Stack Unit RTC).
    * Install any required baseline packaging libraries (`ArduinoJson`, `WiFi`, `PubSubClient`, etc.).
    * Configure your local Wi-Fi SSID and Password (file: `secrets.h`), and your Raspberry Pi CM5's static IP address for the target MQTT broker (file: `/data/secrets.json`). Under "mqtt" fill-in: "use_broker_local" : 1, (or 2) and fill-in IP-address of: "broker_local1" : `"192.168._.___"` or "broker_local2" : `"192.168._.___"`. Under "wifi" : { "ssid" : "Your_WIFI_SSID", "pass" : "Your_WIFI_PASSWORD" },
