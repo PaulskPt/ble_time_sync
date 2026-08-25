@@ -66,11 +66,6 @@ The Raspberry Pi CM5 serves as the central data gateway, natively hosting a **Mo
 * **`ble_watcher.service`** (Runs `send_time_sync.py`):
   Uses a high-speed file watcher loop (scanning every 1 second). On modification, it extracts the timestamp, validates a built-in **110-second safety gating filter** to prevent BlueZ hardware overlapping collisions (`InProgress` errors), opens a BLE GATT channel to the target node, transmits an 8-byte little-endian binary array (`uint64_t`), and terminates cleanly.
 
-* **`mqtt_recorder.service`** (Runs `mqtt_to_ble_gateway.py`):
-  Subscribes to `sensors/Feath/ambient`, decodes the payload dictionary, extracts the nested epoch string, and atomically overwrites a flat text file cache (`latest_epoch.txt`).
-* **`ble_watcher.service`** (Runs `send_time_sync.py`):
-  Uses a high-speed file watcher loop (scanning every 1 second). On modification, it extracts the timestamp, validates a built-in **110-second safety gating filter** to prevent BlueZ hardware overlapping collisions (`InProgress` errors), opens a BLE GATT channel to the target node, transmits an 8-byte little-endian binary array (`uint64_t`), and terminates cleanly.
-
 ### 3. Embedded Application Core (`nRF54LM20-DK Application Core`)
 Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
 * Exposes a 128-bit Vendor-Specific GATT characteristic layout.
