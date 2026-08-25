@@ -1708,6 +1708,13 @@ int composePayload(char* outBuffer, size_t outSize,
     return -2; // Invalid message type
 
   //  global var mqttMsgID is an unsigned long (takes 10 bytes while a human-readable full datetime = 19bytes)
+  //  Example: {"reads" : {
+  //       "t" : {"v" : "28.4", "u" : "C", "mn" : "-10.0", "mx" : "50.0"}, 
+  //       "p" : {"v" : "1012.3", "u" : "mB", "mn" : "800.0", "mx" : "1200.0"}, 
+  //       "a" : {"v" : "50.3", "u" : "m", "mn" : "0.0", "mx" : "3000.0"}, 
+  //       "h" : {"v" : "60.4", "u" : "%", "mn" : "0.0", "mx" : "100.0"
+  //       }}
+  
   header["t"] = mqttMsgID;  
 
   switch(myMsgType) 
