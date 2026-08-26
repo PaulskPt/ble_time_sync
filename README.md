@@ -162,7 +162,7 @@ The system now functions as a dual-purpose node. In addition to pulling the NTP 
 
 ### 1. Data Flow & Processing
 1. **MQTT Subscription:** The gateway monitors the designated environment topic `sensors/Feath/ambient`.
-2. **JSON Filtering:** Incoming JSON payloads are parsed to extract the specific temperature value (e.g., `SHT4X.Temperature`).
+2. **JSON Filtering:** Incoming JSON payloads are parsed to extract the specific temperature value (part of the data payload: `data["reads"]["t"]["v"]`).
 3. **BLE Payload Construction:** The extracted float value is packed alongside the 4-byte NTP epoch time into a unified byte array structure.
 
 ### 2. BLE GATT Custom Characteristic Structure
