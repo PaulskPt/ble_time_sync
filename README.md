@@ -192,6 +192,14 @@ Upon receiving the GATT write command, the nRF54 application core parses the pay
 * **Line 1:** Synchronized Local Time & Date
 * **Line 2:** Real-time filtered Temperature string (e.g., `Temp: 23.5 C`)
 
+* Changed layout on the OLED display glass across rows:
+  * **Row  0:** Core Link Status (`BLE: SEARCH`, `BLE: LINKED`, or `STATUS DROP`)
+  * **Row 16:** Line Divider (`-----------`)
+  * **Row 32: 1787701746 (raw parsed Epoch string text)
+  * **Row 48:** Dynamic Calendar Date (`yyyy-mm-dd`)
+  * **Row 64:** Active Dynamic Time Zone Label (e.g., `Time (WEST)`)
+  * **Row 80:** High-Precision Ticking Digital Clock (`HH:MM:SS` updated smoothly every 1000ms)
+  * **Row 96:** Temperature (`Temp: 27.2 C`)
 ---
 
 ## 📄 License
