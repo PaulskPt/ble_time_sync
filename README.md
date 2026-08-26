@@ -57,7 +57,7 @@ An advanced, event-driven, cross-protocol time synchronization and environment t
 
 ### 1. MQTT Publisher (`ESP32-S3 Arduino Sketch`)
 Gathers NTP timestamp tokens and wraps them along with environment data inside a structured JSON layout using `composePayload()`.
-* **Header Format Example:** `{"hd": {"ow": "Feath", "de": "Lab", "dc": "BME280", "sc": "meas", "vt": "f", "t": 1787601381}}` where `t` represents the live Epoch timeline.
+* **Header Format Example:** `{"hd":{"ow":"Feath","de":"Lab","dc":"BME280","sc":"meas","vt":"f","t":1787739181}}` where `t` represents the live Epoch timeline.
 
 ### 2. Linux Background Infrastructure (`Raspberry Pi CM5`)
 Managed by two independent, unbuffered, auto-starting **`systemd`** services to decouple Wi-Fi transactions from the Bluetooth hardware controller:
@@ -163,8 +163,13 @@ The system now functions as a dual-purpose node. In addition to pulling the NTP 
 ### 1. Data Flow & Processing
 1. **MQTT Subscription:** The gateway monitors the designated environment topic `sensors/Feath/ambient`.
 2. **JSON Filtering:** Incoming JSON payloads are parsed to extract the specific temperature value:
+   * **Data payload Format Example:**
    ```text
-   (part of the data payload: data["reads"]["t"]["v"]).
+     "reads":{"t":{"v":27.2,"u":"C","mn":-10,"mx":50},"p":{"v":998.7,"u":"mB","mn":800,"mx":1200},"a":{"v":146.5,"u":"m","mn":0,"mx":3000},"h":{"v":88.7,"u":"%","mn":0,"mx":100}}
+   ```
+   
+   ```text
+   (part of the data payload: "reads":{"t":{"v":27.2,"u":"C". [...]).
    Where "t" stands for "Temperature"; "v" the temperature value (float)
    ```
 4. **BLE Payload Construction:** The extracted float value is packed alongside the 4-byte NTP epoch time into a unified byte array structure.
