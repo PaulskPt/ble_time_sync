@@ -154,7 +154,9 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
 
 The system now functions as a dual-purpose node. In addition to pulling the NTP network time, the central gateway subscribes to an MQTT topic to filter live temperature data. This combined payload (NTP Epoch Timestamp + Temperature Value) is packed into a custom structured payload and transmitted over BLE GATT to the nRF54LM20-DK client node to be rendered on the 1.12-inch 128x128 SH1107 OLED screen.
 
-[ MQTT Broker ] ──( Temperature )──┐▼[ NTP Server ] ───( Epoch Time )───► [ Central Gateway ] ──( BLE GATT )──► [ nRF54LM20-DK ] ──► [ OLED Display ]
+[ MQTT Broker ] ──( Temperature )──┐
+                                   ▼
+[ NTP Server ] ───( Epoch Time )───► [ Central Gateway ] ──( BLE GATT )──► [ nRF54LM20-DK ] ──► [ OLED Display ]
 
 ### 1. Data Flow & Processing
 1. **MQTT Subscription:** The gateway monitors the designated environment topic (e.g., `tele/sonoff/SENSOR`).
