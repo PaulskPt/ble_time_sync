@@ -129,6 +129,8 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
        ```powershell
        python -m pip install -r C:\ncs\v3.4.0\zephyr\scripts\requirements.txt
        ```
+       Note: I started to use a good [alternative for pip](https://docs.astral.sh/uv/).
+       
      * **b) Establish and enter the local Python virtual environment:**
        ```powershell
        Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
