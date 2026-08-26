@@ -170,7 +170,7 @@ The system now functions as a dual-purpose node. In addition to pulling the NTP 
    
    ```text
    (part of the data payload: "reads":{"t":{"v":27.2,"u":"C". [...]).
-   Where "t" stands for "Temperature"; "v" the temperature value (float)
+   Where "t" = "Temperature", "v" = temperature value (float), "u" = Unit.
    ```
 4. **BLE Payload Construction:** The extracted float value is packed alongside the 4-byte NTP epoch time into a unified byte array structure.
 
