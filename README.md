@@ -61,7 +61,7 @@ Gathers NTP timestamp tokens and wraps them along with environment data inside a
 
 ### 2. Linux Background Infrastructure (`Raspberry Pi CM5`)
 Managed by two independent, unbuffered, auto-starting **`systemd`** services to decouple Wi-Fi transactions from the Bluetooth hardware controller:
-### 2. Linux Background Infrastructure (`Raspberry Pi CM5`)
+
 The Raspberry Pi CM5 serves as the central data gateway, natively hosting a **Mosquitto MQTT Broker** instance to capture incoming Wi-Fi message packets. The orchestration pipeline is managed continuously by two independent, unbuffered, auto-starting **`systemd`** background services to cleanly decouple network data transactions from the local Bluetooth radio hardware controller:
 
 * **Mosquitto MQTT Broker**: 
