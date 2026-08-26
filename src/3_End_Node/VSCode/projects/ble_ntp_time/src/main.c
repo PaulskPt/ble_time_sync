@@ -36,6 +36,7 @@
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/bluetooth/gatt.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 // ---- Additions @PaulskPt:
@@ -275,15 +276,12 @@ void update_screen(void)
 	/* 6. CLOCK COUNTER ROW: Output ticking digital clock digits strictly onto Row 64 */
 	cfb_print(display_dev, time_str, 0, 64);
 
-	/* 7. TEXT MESSAGE DISPLAY: Handled on Row 80 to avoid blocking clock rows */
-	if (!is_connected && disconnect_alert_timeout_secs > 0) {
-		/* Show the detailed reason string from the disconnected callback handler */
-		print_word_wrapped(display_buffer, 80);
-	} else if (strlen(display_buffer) > 0 && is_connected) {
-		/* Show incoming text stream lines from active transmissions */
+	/* 7. PERSISTENT SENSOR METRIC DISPLAY: Locked onto Row 80 */
+	/* This checks if a value has arrived. If it has, it stays pinned forever! */
+	if (strlen(display_buffer) > 0) {
 		print_word_wrapped(display_buffer, 80);
 	} else {
-		/* Default split string formatting layout */
+		/* Default idle text fallback string formatting layout ONLY at initial boot */
 		print_word_wrapped("Waiting for data", 80);
 		cfb_print(display_dev, ". . .", 0, 96);
 	}
@@ -291,6 +289,7 @@ void update_screen(void)
 	/* Re-render changes directly onto your Adafruit glass surface */
 	cfb_framebuffer_finalize(display_dev);
 }
+
 
 
 /**
@@ -302,25 +301,67 @@ static ssize_t write_rx_data(struct bt_conn *conn,
 			     const void *buf, uint16_t len,
 			     uint16_t offset, uint8_t flags)
 {
-	/* Safety check: Prevent copying data past our 128-byte array limit */
-	if (len >= sizeof(display_buffer)) {
-		len = sizeof(display_buffer) - 1;
+	/* REMOVE OR COMMENT OUT OLD 8-BYTE VALIDATION LOOP: */
+	/* 
+	if (len != 8) {
+		printf("Time Sync Error: Invalid payload length received (%d bytes)\n", len);
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+	}
+	*/
+
+	/* Declare our temporary scratch buffer (64 bytes is perfect) */
+	char temp_incoming[64];
+
+	/* Ensure we don't overflow our local buffer array footprint */
+	if (len >= sizeof(temp_incoming)) {
+		len = sizeof(temp_incoming) - 1;
 	}
 
-	/* Copy the incoming characters into the global display buffer array */
-	memcpy(display_buffer, buf, len);
+	/* Copy exactly 'len' bytes from the active BLE raw data buffer stream */
+	memcpy(temp_incoming, buf, len);
 	
-	/* Properly null-terminate the string string to prevent memory corruption */
-	display_buffer[len] = '\0';
+	/* Enforce strict null-termination at exactly the data boundary index */
+	temp_incoming[len] = '\0';
 
-	/* Log the event out to your VSCode terminal window track line */
-	printf("BLE Received text stream: \"%s\" (%u bytes)\n", display_buffer, len);
+	printf("BLE Combined Event: String parsed safely = \"%s\" (Length: %d)\n", temp_incoming, len);
 
-	/* Trigger a clean screen layout update to show the new wrapped message text */
+	/* Locate the comma token delimiter inside the verified string container */
+	char *comma_ptr = strchr(temp_incoming, ',');
+	if (comma_ptr != NULL) {
+		*comma_ptr = '\0';
+		char *epoch_str = temp_incoming;
+		char *sensor_str = comma_ptr + 1;
+
+		/* 1. PARSE TIMESTAMP SEGMENT & LATCH CORE HARDWARE SYSTEM REGISTERS */
+		uint64_t received_epoch = strtoull(epoch_str, NULL, 10);
+		if (received_epoch > 0) {
+			synchronized_epoch = (time_t)received_epoch;
+			sync_uptime_reference = k_uptime_get_32();
+
+			struct timespec ts;
+			ts.tv_sec = (time_t)received_epoch;
+			ts.tv_nsec = 0;
+			sys_clock_settime(CLOCK_REALTIME, &ts);
+			printf("  -> Clock synced to epoch: %llu\n", (unsigned long long)received_epoch);
+		}
+
+		/* 2. FORMAT AND COPY SENSOR METRIC INTO DISPLAY BUFFER */
+		snprintf(display_buffer, sizeof(display_buffer), "Temp: %s C", sensor_str);
+		printf("  -> Local UI Text Constructed: \"%s\"\n", display_buffer);
+	} else {
+		printf("Data Warning: Comma delimiter not found inside incoming byte array stream.\n");
+	}
+
+	/* Proactively force an instant screen redraw to refresh both clock and weather rows */
 	update_screen();
 
 	return len;
 }
+
+
+
+
+
 
 BT_GATT_SERVICE_DEFINE(oled_svc,
 	BT_GATT_PRIMARY_SERVICE(&oled_service_uuid),
@@ -375,45 +416,60 @@ static ssize_t write_epoch_time_cb(struct bt_conn *conn,
 				   const void *buf, uint16_t len,
 				   uint16_t offset, uint8_t flags)
 {
-	/* A 64-bit Unix timestamp requires exactly 8 bytes of raw binary data */
-	if (len != 8) {
-		printf("Time Sync Error: Invalid payload length received (%d bytes)\n", len);
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+	/* Declare our temporary scratch buffer (64 bytes is perfectly safe) */
+	char temp_incoming[64] = {0};
+
+	/* Ensure we don't overflow our local buffer array footprint */
+	if (len >= sizeof(temp_incoming)) {
+		len = sizeof(temp_incoming) - 1;
 	}
 
-	uint64_t received_epoch = 0;
+	/* Copy exactly 'len' bytes from the active BLE raw data buffer stream */
+	memcpy(temp_incoming, buf, len);
 	
-	/* Copy the 8 raw incoming binary bytes straight into our 64-bit variable */
-	memcpy(&received_epoch, buf, sizeof(received_epoch));
-	printf("BLE Time Event: Received 64-bit Epoch value = %llu\n", (unsigned long long)received_epoch);
+	/* Enforce strict null-termination at exactly the data boundary index */
+	temp_incoming[len] = '\0';
 
-	/* 1. Synchronize our high-precision software uptime references */
-	synchronized_epoch = (time_t)received_epoch;
-	sync_uptime_reference = k_uptime_get_32();
+	printf("BLE Combined Event: String parsed safely = \"%s\" (Length: %d)\n", temp_incoming, len);
 
-	/* ==================================================================== */
-	/* NATIVE REAL-TIME SYSTEM CLOCK LAYER SYNCHRONIZATION                 */
-	/* ==================================================================== */
-	struct timespec ts;
-	ts.tv_sec = (time_t)received_epoch;
-	ts.tv_nsec = 0;
+	/* Locate the comma token delimiter inside the verified string container */
+	char *comma_ptr = strchr(temp_incoming, ',');
+	if (comma_ptr != NULL) {
+		/* Terminate the first segment at the comma to isolate your epoch string */
+		*comma_ptr = '\0';
+		char *epoch_str = temp_incoming;
+		char *sensor_str = comma_ptr + 1;
 
-	/* FIXED FUNCTION CALL: Uses Zephyr's native real-time system clock setter */
-	if (sys_clock_settime(CLOCK_REALTIME, &ts) == 0) {
-		printf("Hardware Success: Zephyr system real-time clock successfully latched!\n");
+		/* 1. PARSE TIMESTAMP SEGMENT & LATCH CORE HARDWARE SYSTEM REGISTERS */
+		uint64_t received_epoch = strtoull(epoch_str, NULL, 10);
+		if (received_epoch > 0) {
+			synchronized_epoch = (time_t)received_epoch;
+			sync_uptime_reference = k_uptime_get_32();
+
+			struct timespec ts;
+			ts.tv_sec = (time_t)received_epoch;
+			ts.tv_nsec = 0;
+
+			/* Uses Zephyr's native real-time system clock setter */
+			if (sys_clock_settime(CLOCK_REALTIME, &ts) == 0) {
+				printf("  -> Hardware Success: Zephyr core clock synced to epoch: %llu\n", (unsigned long long)received_epoch);
+			} else {
+				printf("  -> Hardware Warning: Real-time clock update rejected by system core.\n");
+			}
+		}
+
+		/* 2. FORMAT AND COPY SENSOR METRIC INTO DISPLAY BUFFER */
+		snprintf(display_buffer, sizeof(display_buffer), "Temp: %s C", sensor_str);
+		printf("  -> Local UI Text Constructed: \"%s\"\n", display_buffer);
 	} else {
-		printf("Hardware Warning: Real-time clock update rejected by system core.\n");
+		printf("Data Warning: Comma delimiter not found inside incoming byte array stream.\n");
 	}
 
-	printf("System clock successfully synchronized over BLE!\n");
-	
-	/* Proactively force an instant screen redraw to show the updated time */
+	/* Proactively force an instant screen redraw to refresh both clock and weather rows */
 	update_screen();
 
 	return len;
 }
-
-
 
 
 /* Register the Time Sync Service directly into your GATT Database layout */
@@ -502,7 +558,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
     /* Flush layout data to your 1.12-inch Adafruit SH1107 OLED glass */
     cfb_framebuffer_finalize(display_dev);
 }
-
+/*
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	const char *verbose_text = get_verbose_disconnect_reason(reason);
@@ -510,16 +566,33 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 
 	is_connected = false;
 
-	/* 1. Arm the 15-second countdown timer right here */
+	// 1. Arm the 15-second countdown timer right here 
 	disconnect_alert_timeout_secs = 15;
 
-	/* 2. Save the verbose string into the shared array */
+	// 2. Save the verbose string into the shared array 
 	strncpy(display_buffer, verbose_text, sizeof(display_buffer) - 1);
 	display_buffer[sizeof(display_buffer) - 1] = '\0';
 
-	/* 3. Force an immediate screen refresh pass */
+	// 3. Force an immediate screen refresh pass 
 	update_screen();
 
+	k_work_submit(&adv_restart_work);
+}
+*/
+static void disconnected(struct bt_conn *conn, uint8_t reason)
+{
+	const char *verbose_text = get_verbose_disconnect_reason(reason);
+	printf("BLE Disconnected. Reason: 0x%02X -> %s\n", reason, verbose_text);
+
+	/* 1. Toggle our clean core connection tracker status */
+	is_connected = false;
+
+	/* REMOVED: The 15-second countdown timer and the display_buffer overwrite blocks! */
+
+	/* 2. Force an immediate screen refresh pass to toggle Row 0 */
+	update_screen();
+
+	/* 3. Submit work to natively spin advertising back up over the air */
 	k_work_submit(&adv_restart_work);
 }
 
