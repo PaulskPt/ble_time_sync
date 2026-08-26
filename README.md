@@ -150,7 +150,29 @@ Built inside the **nRF Connect SDK v3.4.0 (Zephyr OS v4.4.0)** ecosystem.
      west flash
      ```
 
+## Feature Update: MQTT Temperature Filtering & Display Bonus
 
+The system now functions as a dual-purpose node. In addition to pulling the NTP network time, the central gateway subscribes to an MQTT topic to filter live temperature data. This combined payload (NTP Epoch Timestamp + Temperature Value) is packed into a custom structured payload and transmitted over BLE GATT to the nRF54LM20-DK client node to be rendered on the 1.12-inch 128x128 SH1107 OLED screen.
+
+[ MQTT Broker ] ──( Temperature )──┐▼[ NTP Server ] ───( Epoch Time )───► [ Central Gateway ] ──( BLE GATT )──► [ nRF54LM20-DK ] ──► [ OLED Display ]
+
+### 1. Data Flow & Processing
+1. **MQTT Subscription:** The gateway monitors the designated environment topic (e.g., `tele/sonoff/SENSOR`).
+2. **JSON Filtering:** Incoming JSON payloads are parsed to extract the specific temperature value (e.g., `SHT4X.Temperature`).
+3. **BLE Payload Construction:** The extracted float value is packed alongside the 4-byte NTP epoch time into a unified byte array structure.
+
+### 2. BLE GATT Custom Characteristic Structure
+The combined data is written to the Time/Weather Characteristic using the following byte distribution:
+
+| Byte Offset | Data Type | Field Description |
+|---|---|---|
+| `0x00 - 0x03` | `uint32_t` | NTP Epoch Timestamp (Little-Endian) |
+| `0x04 - 0x07` | `float` | Filtered Temperature Value (IEEE-754 Single-Precision) |
+
+### 3. Client Node Display Layout (nRF54LM20-DK)
+Upon receiving the GATT write command, the nRF54 application core parses the payload, updates its internal RTC matrix, and refreshes the SH1107 pixel buffer over I2C (Pins **P1.11** for SDA and **P1.12** for SCL) to render:
+* **Line 1:** Synchronized Local Time & Date
+* **Line 2:** Real-time filtered Temperature string (e.g., `Temp: 23.5 C`)
 
 ---
 
