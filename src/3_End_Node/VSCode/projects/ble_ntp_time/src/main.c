@@ -58,6 +58,8 @@ static ssize_t write_rx_data(struct bt_conn *conn,
 			     const void *buf, uint16_t len,
 			     uint16_t offset, uint8_t flags);
 
+bool last_epoch_displayed = false;
+char last_epoch_str[11] = {0}; // see write_rx_data()
 
 #define BT_UUID_OLED_SERVICE_VAL \
 	BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x567812345678)
@@ -207,7 +209,7 @@ void update_screen(void)
 		cfb_framebuffer_clear(display_dev, false);
 	}
 
-	/* 1. DYNAMIC TOP HEADER: Always draw status cleanly based on active event states */
+	/* 1. DYNAMIC TOP HEADER: Always draw status cleanly based on active event states (Row 0) */
 	if (!is_connected && disconnect_alert_timeout_secs > 0) {
 		cfb_print(display_dev, "STATUS DROP", 0, 0);
 	} else if (is_connected) {
@@ -216,11 +218,28 @@ void update_screen(void)
 		cfb_print(display_dev, "BLE: SEARCH", 0, 0);
 	}
 
-	/* 2. FIXED SEPARATOR LINE: Fixed to display across ALL screen view layouts */
+	/* 2. FIXED SEPARATOR LINE: Maintained strictly on Row 16 */
 	cfb_print(display_dev, "-----------", 0, 16);
 
-	/* 3. DYNAMIC DATA TRACKING VARIABLES DECLARATION */
-	/* CORRECT MATRIX FIX: Added square brackets to declare true character arrays */
+	/* ==================================================================== */
+	/* CASCADING PUSHED-DOWN VERTICAL LAYOUT MATRIX                         */
+	/* ==================================================================== */
+
+	/* 3. RAW INCOMING EPOCH STRING DISPLAY: Shifted from Row 96 up to Row 32 */
+	if (strlen(last_epoch_str) > 0) {
+		/* Print to your SH1107 OLED glass memory segments */
+		cfb_print(display_dev, last_epoch_str, 0, 32);
+		
+		/* Continuous serial diagnostic output check */
+		if (!last_epoch_displayed) {
+			printf("UI Log Check: Displaying Last Captured Epoch String = \"%s\"\n", last_epoch_str);
+			last_epoch_displayed = true; /* Toggle state flag guard */
+		}
+	} else {
+		cfb_print(display_dev, "No Epoch", 0, 32);
+	}
+
+	/* 4. DYNAMIC DATA TRACKING VARIABLES DECLARATION */
 	char date_str[32] = {0};
 	char time_str[32] = {0};
 	char header_str[32] = {0};
@@ -266,24 +285,21 @@ void update_screen(void)
 		snprintf(time_str, sizeof(time_str), "UNKNOWN");
 	}
 
-	/* 4. CALENDAR DATE ROW: Print the yyyy-mm-dd format strictly onto Row 32 */
-	cfb_print(display_dev, date_str, 0, 32);
+	/* 5. CALENDAR DATE ROW: Pushed down from Row 32 to Row 48 */
+	cfb_print(display_dev, date_str, 0, 48);
 
-	/* 5. TIME ZONE HEADER ROW: Build dynamic label line precisely onto Row 48 */
+	/* 6. TIME ZONE HEADER ROW: Pushed down from Row 48 to Row 64 */
 	snprintf(header_str, sizeof(header_str), "Time%s", zone_label);
-	cfb_print(display_dev, header_str, 0, 48);
+	cfb_print(display_dev, header_str, 0, 64);
 
-	/* 6. CLOCK COUNTER ROW: Output ticking digital clock digits strictly onto Row 64 */
-	cfb_print(display_dev, time_str, 0, 64);
+	/* 7. CLOCK COUNTER ROW: Pushed down from Row 64 to Row 80 */
+	cfb_print(display_dev, time_str, 0, 80);
 
-	/* 7. PERSISTENT SENSOR METRIC DISPLAY: Locked onto Row 80 */
-	/* This checks if a value has arrived. If it has, it stays pinned forever! */
+	/* 8. PERSISTENT SENSOR METRIC DISPLAY: Pushed down from Row 80 to Row 96 */
 	if (strlen(display_buffer) > 0) {
-		print_word_wrapped(display_buffer, 80);
+		print_word_wrapped(display_buffer, 96);
 	} else {
-		/* Default idle text fallback string formatting layout ONLY at initial boot */
-		print_word_wrapped("Waiting for data", 80);
-		cfb_print(display_dev, ". . .", 0, 96);
+		print_word_wrapped("Waiting for data", 96);
 	}
 
 	/* Re-render changes directly onto your Adafruit glass surface */
@@ -330,6 +346,9 @@ static ssize_t write_rx_data(struct bt_conn *conn,
 	if (comma_ptr != NULL) {
 		*comma_ptr = '\0';
 		char *epoch_str = temp_incoming;
+		strcpy(last_epoch_str, epoch_str); // copy to global variable
+		last_epoch_displayed = false;
+
 		char *sensor_str = comma_ptr + 1;
 
 		/* 1. PARSE TIMESTAMP SEGMENT & LATCH CORE HARDWARE SYSTEM REGISTERS */
@@ -357,11 +376,6 @@ static ssize_t write_rx_data(struct bt_conn *conn,
 
 	return len;
 }
-
-
-
-
-
 
 BT_GATT_SERVICE_DEFINE(oled_svc,
 	BT_GATT_PRIMARY_SERVICE(&oled_service_uuid),
@@ -416,29 +430,26 @@ static ssize_t write_epoch_time_cb(struct bt_conn *conn,
 				   const void *buf, uint16_t len,
 				   uint16_t offset, uint8_t flags)
 {
-	/* Declare our temporary scratch buffer (64 bytes is perfectly safe) */
 	char temp_incoming[64] = {0};
 
-	/* Ensure we don't overflow our local buffer array footprint */
 	if (len >= sizeof(temp_incoming)) {
 		len = sizeof(temp_incoming) - 1;
 	}
-
-	/* Copy exactly 'len' bytes from the active BLE raw data buffer stream */
 	memcpy(temp_incoming, buf, len);
-	
-	/* Enforce strict null-termination at exactly the data boundary index */
 	temp_incoming[len] = '\0';
 
 	printf("BLE Combined Event: String parsed safely = \"%s\" (Length: %d)\n", temp_incoming, len);
 
-	/* Locate the comma token delimiter inside the verified string container */
 	char *comma_ptr = strchr(temp_incoming, ',');
 	if (comma_ptr != NULL) {
-		/* Terminate the first segment at the comma to isolate your epoch string */
 		*comma_ptr = '\0';
 		char *epoch_str = temp_incoming;
 		char *sensor_str = comma_ptr + 1;
+
+		/* CRITICAL FIX: Latch the isolated epoch string into your globals right here! */
+		strncpy(last_epoch_str, epoch_str, sizeof(last_epoch_str) - 1);
+		last_epoch_str[sizeof(last_epoch_str) - 1] = '\0';
+		last_epoch_displayed = false;
 
 		/* 1. PARSE TIMESTAMP SEGMENT & LATCH CORE HARDWARE SYSTEM REGISTERS */
 		uint64_t received_epoch = strtoull(epoch_str, NULL, 10);
@@ -450,7 +461,6 @@ static ssize_t write_epoch_time_cb(struct bt_conn *conn,
 			ts.tv_sec = (time_t)received_epoch;
 			ts.tv_nsec = 0;
 
-			/* Uses Zephyr's native real-time system clock setter */
 			if (sys_clock_settime(CLOCK_REALTIME, &ts) == 0) {
 				printf("  -> Hardware Success: Zephyr core clock synced to epoch: %llu\n", (unsigned long long)received_epoch);
 			} else {
@@ -465,11 +475,10 @@ static ssize_t write_epoch_time_cb(struct bt_conn *conn,
 		printf("Data Warning: Comma delimiter not found inside incoming byte array stream.\n");
 	}
 
-	/* Proactively force an instant screen redraw to refresh both clock and weather rows */
 	update_screen();
-
 	return len;
 }
+
 
 
 /* Register the Time Sync Service directly into your GATT Database layout */
