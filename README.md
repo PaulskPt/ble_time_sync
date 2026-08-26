@@ -172,7 +172,10 @@ The system now functions as a dual-purpose node. In addition to pulling the NTP 
    (part of the data payload: "reads":{"t":{"v":27.2,"u":"C", [...]).
    Where "t" = "Temperature", "v" = temperature value (float), "u" = Unit.
    ```
-4. **BLE Payload Construction:** The extracted float value is packed alongside the 4-byte NTP epoch time into a unified byte array structure.
+3. **BLE Payload Construction:** The extracted float value is packed alongside the 4-byte NTP epoch time into a unified byte array structure.
+   ```text
+   "1787740022,27.5"
+   ```
 
 ### 2. BLE GATT Custom Characteristic Structure
 The combined data is written to the Time/Weather Characteristic using the following byte distribution:
